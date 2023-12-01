@@ -1,7 +1,6 @@
 import pathlib
 
 word_numbers = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
-
 fn = pathlib.Path(__file__).parent / 'input.txt'
 
 with open(fn) as f:
