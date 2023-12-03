@@ -1,5 +1,5 @@
 import pathlib
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 
 word_numbers = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
 fn = pathlib.Path(__file__).parent / 'input.txt'
@@ -47,7 +47,7 @@ def parse_row(row: str) -> Row:
 
 def breaching_limit(limit: Reveal, reveal: Reveal) -> bool:
     for field in fields(limit):
-        if getattr(limit, field) < getattr(reveal, field):
+        if getattr(limit, field.name) < getattr(reveal, field.name):
             return True
     return False
 
@@ -55,12 +55,19 @@ def breaching_limit(limit: Reveal, reveal: Reveal) -> bool:
 with open(fn) as f:
     lines = f.readlines()
     game_sum = 0
+    game_pow = 0
     for row in lines:
         if not row:
             continue
         parsed_row = parse_row(row)
+        if not any([breaching_limit(limit, reveal) for reveal in parsed_row.reveals]):
+            game_sum += parsed_row.game_id
+        min_reveal = Reveal()
         for reveal in parsed_row.reveals:
-            if breaching_limit(limit, reveal):
-                game_sum += parsed_row.game_id
-                break
+            for field in fields(min_reveal):
+                if getattr(min_reveal, field.name) < getattr(reveal, field.name):
+                    setattr(min_reveal, field.name, getattr(reveal, field.name))
+        pow_rev = min_reveal.blue * min_reveal.green * min_reveal.red
+        game_pow += pow_rev
     print(f'game_sum: {game_sum} ')
+    print(f'game_pow: {game_pow} ')
